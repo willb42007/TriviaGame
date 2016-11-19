@@ -1,0 +1,285 @@
+<!--
+==================Assumptions====================
+(a) Score is oriented to player
+(b) six (6) questions displayed at one time
+(c) Wins/losses not recorded
+(d)
+(e)
+
+====================Tasks========================
+(1)  Set time limit that counts down on how long the player has to guess the answers
+(2)  Allow the player to change their answer
+(3)  Allow only one button selected at one time, per each question
+(4)  End game at conclusion of time expiring
+(5)  Inform the player of how many questions they answered correctly and incorrectly
+(6)  Display timer count down
+(7)  Create button that allows user to submit answers before time expires
+(8)  link button onClick to correct/incorrect answer
+(9)  Randomly generate list of questions assigned to different numbers 
+(10) Randomly generate a batch of answers to the same question, but different buttons
+(11) Link answers to questions
+(12) 
+
+====================Questions========================
+(1)  
+-->
+
+
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<title>Trivia</title>
+	
+	<style>
+		.slot 
+		{ 
+			border-radius:25px; 
+			margin-left:200px; 
+			padding:10px; 
+			width:800px; 
+			height:180px; 
+			background-color:indigo; 
+			text-align:center; 
+			vertical-align: middle; 
+			border-color:teal; 
+			color:white; 
+			border-style:solid;
+			float:left;
+			font-size:14pt;
+			position:relative;
+		}
+
+		.button
+		{
+			border-radius:10px; 
+			background-color:pink; 
+			color:purple; 
+			border-color:white; 
+			vertical-align:middle;
+			width:80px;
+			height:40px;
+			font-size:14pt;
+		}
+
+	.letter { display:inline-block; width:40px; text-align:right;  }
+	.selection { display:inline-block; width:300px; padding-left:20px; text-align:left; }
+	</style>
+
+</head>
+
+<body background="backgroundParty.jpeg" onload="init()">
+	
+	<div class=slot style="font-size:40pt;"> 
+		<br>
+		Totally Trivial Trivia !!!
+	</div>
+
+	<div class=slot id=myStart>
+		<button style = "border-radius:10px; height:80px; width:240px; background-color:pink; color:purple; border-color:white;  font-size:20pt; font-style:courier; position:absolute; top:28%; margin-left:-120px" onclick="game.start()"> Begin Questions </button>
+	</div>
+
+	<div class=slot id=myQuestion style="display:none"> 
+		
+	</div>
+
+	<div class=slot id=myAnswer style="display:none">
+		<br>
+		 <button class=button>A</button>
+		 <button class=button>B</button>
+		 <button class=button>C</button>
+		 <button class=button>D</button><br><br>
+
+		 <span style="display:inline-block;width:240px; border:2px silver solid; border-radius: 25px 25px; padding:10px">
+		 <div id=myCount></div>
+		 <div id=myBar style="display:block;width:50px;height:15px; overflow:hidden; background-color:white;">&nbsp;</div>
+		 </span>
+	</div>  
+
+
+	<script>
+	//===================================================================================
+	//						             init
+	//===================================================================================
+	function init()
+	{
+			window.game = new game$();
+	}
+	//===================================================================================
+	//						             start
+	//===================================================================================
+	function game$start()
+	{
+			this.right = 0;
+			this.wrong = 0;
+			this.questionIndex = -1;
+			this.question = null;
+			this.time 		= 60;
+			this.done		= false;
+
+			myAnswer.style.display = '';
+			myStart.style.display = 'none';
+			myQuestion.style.display = '';
+			game.next();
+
+			this.x = game$time.bind(this);
+			this.timeHandle = setTimeout(this.x,1000) 
+
+	}	
+	//===================================================================================
+	//						             game$
+	//===================================================================================
+	function game$()
+	{
+			window.myAnswer.onclick = game$onClick.bind(this);
+
+			this.correct 	= game$correct;
+			this.incorrect 	= game$incorrect;
+						
+			this.next 		= game$next;
+			this.randomize 	= game$randomize;
+			this.gameOver  	= game$gameOver;
+			this.start 		= game$start;
+
+			//------------  questions --------------
+
+			this.delay = 5000;
+			this.timeout = null;
+
+			this.questions = new Array();
+			this.questions[0] = {question: "Which actor played the role of Magnum PI?",
+								 answers:['Tom Selleck','Tom Cruise','Tommy Lee Jones','Thomas the Train']};
+
+			this.questions[1] = {question: "How many seasons did Magnum PI run for?", 
+								 answers:['8 seasons','7 seasons','9 seasons','6 seasons']};
+
+			this.questions[2] = {question: "What are the names of Higgins dogs?", 
+								 answers:["Zeus & Apollo","Alfey & Duffey","Butch & Sundance","Naomi & Wynonna"]};				 
+
+			this.questions[3] = {question: "Who owned the Hawaii mansion?",
+								 answers:['Robin Masters','Robin Williams','Robin Hood','Master Murphy']};
+
+			this.questions[4] = {question: "What was the license plate on Magnum's red car?",
+								 answers:["Robin1","eatMyDust","FerriMe","GoBabyGo"]};					 
+
+			this.questions[5] = {question: "What type of car did Magnum drive?",
+								 answers:["Ferrari380","Lamborghini","Porsche911","Bentley"]};
+
+			this.questions[6] = {question: "What type of gun did Magnun carry?",
+								 answers:[".45 caliber 1911 pistol", "Berretta 9mm","44 magnum","Snubnose .38"]};					 
+
+	} 
+	//===================================================================================
+	//						            onClick
+	//===================================================================================
+	function game$onClick(event) 
+	{
+			var index,value;
+
+			element = event.target;
+			if (element.tagName != "BUTTON") return;
+			index = element.innerText.charCodeAt(0) - 65;
+			if (index == this.question.correct) return this.correct();
+			return this.incorrect();
+	}
+	//===================================================================================
+	//						            game$correct
+	//===================================================================================
+	function game$correct() 
+	{
+			this.right += 1;
+			this.next();			
+	}
+	//===================================================================================
+	//						            game$incorrect
+	//===================================================================================
+	function game$incorrect() 
+	{
+			this.wrong += 1;
+			this.next();
+	}
+	
+	//===================================================================================
+	//						            game$randomize
+	//===================================================================================
+	function game$randomize() 
+	{
+			var text,i,j,used,index,text;
+
+			this.question.correct = -1;
+
+			used = new Array();
+			for (i=0; i < 4; ++i)
+			{
+					j = Math.round(Math.random() * 4000) + ':' + i;
+					used[i] = j;
+			}
+
+			used.sort();
+
+			text = '<div class=question>' + this.question.question + '</div><br>';
+			text += '<center>';
+			for (i in used)
+			{
+				j = +i;
+				index = parseInt(used[i].substr(used[i].indexOf(':')+1));
+				if (index == 0) this.question.correct = j;
+				text += '<span class="letter">' + '(' + String.fromCharCode(65 + j) + ')' + '</span>';
+				text += '<span class="selection">' + this.question.answers[index] + '</span><br>';
+			}
+			text += '</center>';
+			myQuestion.innerHTML = text;
+
+	}
+	//===================================================================================
+	//						            game$time
+	//===================================================================================
+	function game$time() 
+	{
+			var pos,y;
+
+			if (this.done) return;
+
+			this.time -= 1;
+			
+			pos = this.time * 4;
+			myBar.style.width = pos + 'px';
+			myCount.innerText = this.time;
+
+			if (this.time <= 0) 
+			{
+				y = this.gameOver.bind(this);
+				setTimeout(y,100);
+				return;
+			}
+
+			this.timeHandle = setTimeout(this.x,1000);
+	}
+	//===================================================================================
+	//						            game$next
+	//===================================================================================
+	function game$next() 
+	{
+			if (this.questionIndex >= this.questions.length-1) return this.gameOver();
+			this.questionIndex += 1;
+
+			this.question = this.questions[this.questionIndex];
+			this.randomize();
+
+	}
+	//===================================================================================
+	//						             gameOver
+	//===================================================================================
+	function game$gameOver() 
+	{
+			this.done = true;
+			alert('GAME OVER: Your percentage: ' + (Math.floor((this.right/7)*100)) + '% right with ' + this.right + ' correct answers  ' + this.wrong + ' wrong answers');
+			this.questionIndex = -1;
+			
+			myAnswer.style.display = 'none';
+			myStart.style.display = '';
+			myQuestion.style.display = 'none';
+	}
+	</script>
+</body>
+</html>
